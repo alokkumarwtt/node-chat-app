@@ -2,6 +2,7 @@ const path=require('path');
 const express=require('express');
 const http=require('http');
 const socketIO=require('socket.io');
+const {generateMessage}=require('./utils/message')
 
 const publicPath=path.join(__dirname,'../public')
 var app=express()
@@ -11,18 +12,23 @@ var io=socketIO(server);
 
 io.on('connection',(socket)=>{
 	console.log('new user connected')
-	socket.on('disconnect',()=>{
+	socket.emit('newMessage',generateMessage('Admin','Welcome to chat app'))
+	socket.broadcast.emit('newMessage',generateMessage('Admin','New user connected'))
+    
+    socket.on('disconnect',()=>{
 		console.log('User Dissonnected')
 	})
-	socket.emit('newMessage',{
-		From:'Mona',
-		text:'Hi alok how are you??'
-	})
-   socket.on('createMessage',(message)=>{
-         console.log(message)
-    })
-
 	
+   socket.on('createMessage',(message,callback)=>{
+         console.log(message)
+         io.emit('newMessage',generateMessage(message.from,message.text))
+         callback('Message Receved by the server');
+         // socket.broadcast.emit('newMessage',{
+         // 	from:message.from,
+         // 	text:message.text,
+         // 	createdAt:new Date().getTime()
+         // })
+    })
 })
 
 app.use(express.static(publicPath))
