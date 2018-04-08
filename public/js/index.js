@@ -36,41 +36,14 @@
     }
      
 });
- 
-   
-
-    }else{
-
- var li = jQuery('<li></li>');
-          li.text(`${newmessage.from}: ${newmessage.text}`);
-          jQuery('#messages').append(li);
-
-    }
-	     
-
-   //  var myString = newmessage.text;
-   //  console.log(myString)
-   //  //var res = myString.match(/CAD-10/g);
-   //    var substr=myString.substring(0,3);
-   //  var substr1=myString.substring(4,6);
-
-   //  console.log(substr*10);
-   // if( substr=="CAD"){
-   //   var li = jQuery('<li></li>');
-   //      li.text(`${newmessage.from}:USD ${substr1*1.2772}`);
-   //      jQuery('#messages').append(li);
-   //  }else{
-         
-   // }
-    
-     
-    
-// var parts = myString.split("Half");
-// var thePart = parts[0];
-
-    })
+}else{
+   var li = jQuery('<li></li>');
+            li.text(`${newmessage.from}: ${newmessage.text}`);
+            jQuery('#messages').append(li);
+}
+})
     socket.on('newLocationMessage', function (message) {
-      console.log(message)
+    console.log(message)
     var li = jQuery('<li></li>');
     var a = jQuery('<a target="_blank">My current location</a>');
 
@@ -79,32 +52,32 @@
     li.append(a);
     jQuery('#messages').append(li);
 });
-  
-
-   $(document).ready(function(){
+  $(document).ready(function(){
   jQuery('#message-form').on('submit', function (e) {
   e.preventDefault();
-
+  var messageTextBox=jQuery('[name=message]')
   socket.emit('createMessage', {
     from: 'User',
-    text: jQuery('[name=message]').val()
+    text: messageTextBox.val()
   }, function () {
-
+    messageTextBox.val('')
   })
 }); 
-
 var locationButton = jQuery('#send-location');
 locationButton.on('click', function () {
   if (!navigator.geolocation) {
     return alert('Geolocation not supported by your browser.');
   }
-
+  locationButton.attr('disabled','disabled').text('Sending location.....')
   navigator.geolocation.getCurrentPosition(function (position) {
+    locationButton.removeAttr('disabled').text('Send location')
+
     socket.emit('createLocationMessage', {
       latitude: position.coords.latitude,
       longitude: position.coords.longitude
     });
-  }, function () {
+  },function () {
+    //locationButton.removeAttr('disabled').text('Send location');
     alert('Unable to fetch location.');
   });
 });
