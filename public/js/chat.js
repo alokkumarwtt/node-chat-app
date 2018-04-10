@@ -14,9 +14,11 @@
     messages.scrollTop(scrollHeight);
   }
 }
-
 socket.on('connect', function () {
-  var params = jQuery.deparam(window.location.search);
+  var params= jQuery.deparam(window.location.search);
+  var x=params.room;
+  var y=x.toUpperCase();
+  params.room=y;
 
   socket.emit('join', params, function (err) {
     if (err) {
@@ -30,6 +32,25 @@ socket.on('connect', function () {
 	socket.on('disconnect',()=>{
 		console.log('connect to server')
 	})
+
+ socket.on('updateUserList', function (users) {
+  var ol = jQuery('<ol></ol>');
+
+  users.forEach(function (user) {
+    ol.append(jQuery('<li></li>').text(user));
+  });
+
+  jQuery('#users').html(ol);
+});
+socket.on('dropdown',(newmessage)=>{
+ console.log(newmessage.text)
+  // var option = jQuery('<option></option>');
+        //option.text(`${newmessage.text}`);
+          //jQuery('#messages123').append(option);
+
+
+        
+});
   
 	socket.on('newMessage',(newmessage)=>{
     // var myString=newmessage.text;
@@ -37,10 +58,8 @@ socket.on('connect', function () {
     var mymsg=newmessage.text;
     var msg=mymsg.substring(0,3);
      var number=mymsg.substring(4,10);
-  
-  
-    if(msg=="CAD"){
-       //console.log(newmessage.url);
+     if(msg=="CAD"){
+     
     var fbUrl=`http://api.fixer.io/latest?base=${msg}`
      console.log(number)
     $.ajax({        
@@ -107,8 +126,10 @@ socket.on('connect', function () {
   jQuery('#message-form').on('submit', function (e) {
   e.preventDefault();
   var messageTextBox=jQuery('[name=message]')
+ 
+
   socket.emit('createMessage', {
-    from: 'User',
+  
     text: messageTextBox.val()
   }, function () {
     messageTextBox.val('')
